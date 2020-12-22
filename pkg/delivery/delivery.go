@@ -10,7 +10,7 @@ type Delivery struct {
 	stations map[string]int
 }
 
-func NewDelivery(deliverystart chan bool, deliveryCount int) []Delivery {
+func NewDelivery(deliveryStart chan bool, deliveryCount int) []Delivery {
 	dele := Delivery{}
 	dele.stations = map[string]int{}
 	var deliveryList = make([]Delivery, 5)
@@ -19,7 +19,7 @@ func NewDelivery(deliverystart chan bool, deliveryCount int) []Delivery {
 	}
 	for i := 0; i < 5; i++ {
 		time.Sleep(time.Millisecond) //고루틴 순서대로 실행되도록 약간 딜레이
-		go DeliveryStatus(deliverystart, i, deliveryList, &deliveryCount)
+		go DeliveryStatus(deliveryStart, i, deliveryList, &deliveryCount)
 	}
 	return deliveryList
 }

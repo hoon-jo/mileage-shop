@@ -12,8 +12,8 @@ func main() {
 	deliveryCount := 0
 	buyer := user.CreateBuyer()
 	products := item.CreateProducts()
-	deliverystart := make(chan bool)
-	deliveryList := deli.NewDelivery(deliverystart, deliveryCount)
+	deliveryStart := make(chan bool)
+	deliveryList := deli.NewDelivery(deliveryStart, deliveryCount)
 
 	for {
 		menu := 0 // 첫 메뉴
@@ -32,7 +32,7 @@ func main() {
 		switch menu {
 
 		case 1:
-			user.BuyProduct(products, buyer, &deliveryCount, deliverystart)
+			user.BuyProduct(products, buyer, &deliveryCount, deliveryStart)
 		case 2:
 			item.GetProducts(products)
 		case 3:
