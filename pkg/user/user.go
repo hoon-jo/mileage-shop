@@ -34,7 +34,7 @@ func AddToCart(user *buyer, product item.Item, amount int) {
 	user.basket[name] = amount
 }
 
-func BuyProduct(products []item.Item, user *buyer, deliveryCount *int) {
+func BuyProduct(products []item.Item, user *buyer, deliveryCount *int, delivery chan bool) {
 
 	buy := func(index int) {
 		var inputAmount int
@@ -58,6 +58,7 @@ func BuyProduct(products []item.Item, user *buyer, deliveryCount *int) {
 				}
 				price := item.CalculProductAmount(products, index-1, inputAmount)
 				CalculUserPoint(user, price*inputAmount)
+				delivery <- true
 				*deliveryCount++
 				break
 			} else if buyOrAddToCart == 2 {
