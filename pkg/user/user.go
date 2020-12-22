@@ -30,11 +30,11 @@ func CalculUserPoint(user *buyer, price int) {
 }
 func AddToCart(user *buyer, product item.Item, amount int) {
 
-	name, price, amount := item.GetProductFields(product)
-	user.basket[name] = price
+	name, _, _ := item.GetProductFields(product)
+	user.basket[name] = amount
 }
 
-func BuyProduct(products []item.Item, user *buyer) {
+func BuyProduct(products []item.Item, user *buyer, BuyProduct int) {
 	buy := func(index int) {
 		var inputAmount int
 		var buyOrAddToCart int
@@ -51,11 +51,17 @@ func BuyProduct(products []item.Item, user *buyer) {
 			fmt.Scanln(&buyOrAddToCart)
 			fmt.Println()
 			if buyOrAddToCart == 1 {
+				if BuyProduct > 5 {
+					fmt.Println("배송 한도를 초과했습니다. 배송이 완료되면 주문하세요.")
+					break
+				}
 				price := item.CalculProductAmount(products, index-1, inputAmount)
 				CalculUserPoint(user, price*inputAmount)
+				BuyProduct++
 				break
 			} else if buyOrAddToCart == 2 {
 				AddToCart(user, products[index-1], inputAmount)
+				fmt.Println("성공적으로 장바구니에 담겼습니다.")
 				break
 			} else {
 				fmt.Println("잘못된 입력입니다. 다시 입력 해주세요.")
@@ -83,15 +89,77 @@ func BuyProduct(products []item.Item, user *buyer) {
 		}
 	}
 }
-func ViewMyCart(user buyer) {
+func ViewMyCart(products []item.Item, user *buyer) {
 	if len(user.basket) == 0 {
 		fmt.Println("장바구니가 비었습니다.")
 	} else {
 		for index, val := range user.basket {
 			fmt.Printf("%s, 수량: %d\n", index, val)
 		}
+		var orderOrNot int
+		for {
+			fmt.Println("1. 장바구니 상품 주문")
+			fmt.Println("2. 메뉴로 돌아가기")
+			fmt.Print("실행할 기능을 입력하시오 :")
+			fmt.Scanln(&orderOrNot)
+			fmt.Println()
+			if orderOrNot == 1 {
+				BuyAllItemsInCart(products, user)
+				break
+			} else if orderOrNot == 2 {
+				break
+			} else {
+				fmt.Println("잘못된 입력입니다 다시 입력하세요")
+			}
+		}
 	}
+}
+
+func BuyAllItemsInCart(products []item.Item, user *buyer) bool {
+	totalPrice := 0
+	ableToOrder := true
+
+	for _, product := range products {
+		var itemName, itemPrice, itemAmount = item.GetProductFields(product)
+		for cartItemName, cartItemAmount := range user.basket {
+
+			if cartItemName == itemName {
+				if itemAmount < cartItemAmount {
+					fmt.Println("주문할 수량이 재고보다 많습니다.")
+					ableToOrder = false
+					break
+				}
+				// cart[cartItemName]
+				totalPrice += itemPrice * cartItemAmount
+			}
+		}
+		if ableToOrder == false {
+			break
+		}
+	}
+	fmt.Printf("필요 마일리지 : %d\n", totalPrice)
+	fmt.Printf("보유 마일리지 : %d\n", user.point)
+
 	fmt.Println()
-	fmt.Print("엔터를 입력하면 메뉴 화면으로 돌아갑니다.")
-	fmt.Scanln()
+	if user.point < totalPrice {
+		fmt.Println("마일리지가 %d점 부족합니다.", totalPrice-user.point)
+		ableToOrder = false
+	}
+
+	if ableToOrder {
+		CalculUserPoint(user, totalPrice)
+		for i := 0; i < len(products); i++ {
+			var itemName, _, _ = item.GetProductFields(products[i])
+			for cartItemName, cartItemAmount := range user.basket {
+				if cartItemName == itemName {
+					price := item.CalculProductAmount(products, i, cartItemAmount)
+					totalPrice = price
+				}
+			}
+
+		}
+		user.basket = map[string]int{}
+
+	}
+	return ableToOrder
 }
