@@ -34,7 +34,8 @@ func AddToCart(user *buyer, product item.Item, amount int) {
 	user.basket[name] = amount
 }
 
-func BuyProduct(products []item.Item, user *buyer, BuyProduct int) {
+func BuyProduct(products []item.Item, user *buyer, deliveryCount *int) {
+
 	buy := func(index int) {
 		var inputAmount int
 		var buyOrAddToCart int
@@ -51,13 +52,13 @@ func BuyProduct(products []item.Item, user *buyer, BuyProduct int) {
 			fmt.Scanln(&buyOrAddToCart)
 			fmt.Println()
 			if buyOrAddToCart == 1 {
-				if BuyProduct > 5 {
+				if *deliveryCount > 5 {
 					fmt.Println("배송 한도를 초과했습니다. 배송이 완료되면 주문하세요.")
 					break
 				}
 				price := item.CalculProductAmount(products, index-1, inputAmount)
 				CalculUserPoint(user, price*inputAmount)
-				BuyProduct++
+				*deliveryCount++
 				break
 			} else if buyOrAddToCart == 2 {
 				AddToCart(user, products[index-1], inputAmount)
