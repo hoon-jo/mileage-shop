@@ -1,5 +1,7 @@
 package product
 
+import "fmt"
+
 type item struct {
 	name   string
 	price  int
@@ -15,4 +17,11 @@ func CreateProducts() []item {
 	items[3] = item{"나이키 운동화", 150000, 50}
 	items[4] = item{"빼빼로", 1200, 500}
 	return items
+}
+
+func GetProducts(products []item) {
+	for _, product := range products {
+		fmt.Printf("%s 남은수량 : %d\n", product.name, product.amount)
+	}
+
 }
